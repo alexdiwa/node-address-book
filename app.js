@@ -1,6 +1,7 @@
 require('events').EventEmitter.defaultMaxListeners = 50;
 const inquirer = require("inquirer");
 const chalk = require("chalk");
+const fs = require("fs");
 
 let contacts = [];
 
@@ -57,8 +58,11 @@ let addContact = () => {
     .prompt(addContactQuestions)
     .then(answers => {
       contacts.push(answers);
+      updateContacts();
+      console.log("---------");
       showOptions();
     })
+    .catch(err => console.log(err))
 }
 
 // VIEW ALL CONTACTS
@@ -97,8 +101,23 @@ let removeContact = () => {
           console.log(`${contactName} has been successfully deleted`)
         }
       })
+      updateContacts();
+      console.log("---------");
       showOptions();
     })
+    .catch(err => console.log(err))
 }
+
+// UPDATE CONTACTS
+
+let updateContacts = () => {
+  fs.writeFile("contacts.txt", JSON.stringify(contacts), (err) => {
+    if (err) {
+      throw err;
+    }
+    console.log('contacts.txt updated!')
+  });
+}
+
 
 main();
