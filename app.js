@@ -2,8 +2,7 @@ require('events').EventEmitter.defaultMaxListeners = 50;
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const fs = require("fs");
-
-let contacts = JSON.parse(fs.readFileSync("contacts.txt", "utf8")) || [];
+let contacts = JSON.parse(fs.readFileSync("contacts.txt", "utf8"))
 
 // INITIALIZE APP
 let main = () => {
@@ -60,7 +59,8 @@ let addContact = () => {
   inquirer
     .prompt(addContactQuestions)
     .then(answers => {
-      contacts.push(answers);
+      contacts[answers.name] = answers.number;
+      console.log(contacts);
       updateContacts();
       console.log("---------");
       showOptions();
@@ -70,23 +70,22 @@ let addContact = () => {
 
 // VIEW ALL CONTACTS
 let viewAllContacts = () => {
-  if (contacts.length === 0) {
+  if (Object.entries(contacts).length === 0 && contacts.constructor === Object) {
     console.log("You have no contacts. Start adding!");
     showOptions();
   } else {
     console.log("Your contacts are:");
-    contacts.forEach(contact => {
-      console.log(contact);
-    });
+    for (let contact in contacts) {
+      console.log(`${contact}: ${contacts[contact]}`);
+    }
     showOptions();
   }
 }
 
 // REMOVE A CONTACT
 let removeContact = () => {
-  let contactNames = [];
-  contacts.map(contact => contactNames.push(contact.name));
-  
+  let contactNames = Object.keys(contacts);
+
   let removeWhichContact = {
     type: 'list',
     name: 'contactToDelete',
@@ -98,12 +97,7 @@ let removeContact = () => {
     .prompt(removeWhichContact)
     .then(answer => {
       let contactName = answer.contactToDelete;
-      contacts.forEach((contact, i) => {
-        if (contact.name === contactName) {
-          contacts.splice(i, 1);
-          console.log(`${contactName} has been successfully deleted`)
-        }
-      })
+      delete contacts[contactName];
       updateContacts();
       console.log("---------");
       showOptions();
@@ -114,8 +108,7 @@ let removeContact = () => {
 // VIEW CONTACT NUMBER
 
 let viewContactNumber = () => {
-  let contactNames = [];
-  contacts.map(contact => contactNames.push(contact.name));
+  let contactNames = Object.keys(contacts);
   
   let viewWhichContact = {
     type: 'list',
@@ -128,11 +121,7 @@ let viewContactNumber = () => {
     .prompt(viewWhichContact)
     .then(answer => {
       let contactName = answer.contactToView;
-      contacts.forEach((contact, i) => {
-        if (contact.name === contactName) {
-          console.log(`${contactName}'s number is ${contact.number}`)
-        }
-      })
+      console.log(`${contactName}'s number is ${contacts[contactName]}`)
       showOptions();
     })
     .catch(err => console.log(err))
