@@ -3,7 +3,7 @@ const inquirer = require("inquirer");
 const chalk = require("chalk");
 const fs = require("fs");
 
-let contacts = [];
+let contacts = JSON.parse(fs.readFileSync("contacts.txt", "utf8")) || [];
 
 // INITIALIZE APP
 let main = () => {
@@ -19,7 +19,8 @@ let showOptions = () => {
     message: 'What do you want to do?',
     choices: [
       'Add a contact',
-      'View contacts',
+      'View all contacts',
+      "View a contact's number",
       'Remove a contact',
       'Exit'
     ]
@@ -29,8 +30,10 @@ let showOptions = () => {
     .then(answers => {
       if (answers.view === 'Add a contact') {
         addContact();
-      } else if (answers.view === 'View contacts') {
+      } else if (answers.view === 'View all contacts') {
         viewAllContacts();
+      } else if (answers.view === "View a contact's number") {
+        viewContactNumber();
       } else if (answers.view === 'Remove a contact') {
         removeContact();
       } else {
@@ -74,7 +77,7 @@ let viewAllContacts = () => {
     console.log("Your contacts are:");
     contacts.forEach(contact => {
       console.log(contact);
-    })
+    });
     showOptions();
   }
 }
@@ -94,7 +97,7 @@ let removeContact = () => {
   inquirer
     .prompt(removeWhichContact)
     .then(answer => {
-      contactName = answer.contactToDelete;
+      let contactName = answer.contactToDelete;
       contacts.forEach((contact, i) => {
         if (contact.name === contactName) {
           contacts.splice(i, 1);
@@ -108,7 +111,35 @@ let removeContact = () => {
     .catch(err => console.log(err))
 }
 
-// UPDATE CONTACTS
+// VIEW CONTACT NUMBER
+
+let viewContactNumber = () => {
+  let contactNames = [];
+  contacts.map(contact => contactNames.push(contact.name));
+  
+  let viewWhichContact = {
+    type: 'list',
+    name: 'contactToView',
+    message: 'Which contact do you want to view?',
+    choices: contactNames
+  }
+
+  inquirer
+    .prompt(viewWhichContact)
+    .then(answer => {
+      let contactName = answer.contactToView;
+      contacts.forEach((contact, i) => {
+        if (contact.name === contactName) {
+          console.log(`${contactName}'s number is ${contact.number}`)
+        }
+      })
+      showOptions();
+    })
+    .catch(err => console.log(err))
+    
+}
+
+// WRITE CONTACTS TO FILE
 
 let updateContacts = () => {
   fs.writeFile("contacts.txt", JSON.stringify(contacts), (err) => {
