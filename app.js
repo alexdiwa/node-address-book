@@ -2,7 +2,13 @@ require('events').EventEmitter.defaultMaxListeners = 50;
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const fs = require("fs");
-let contacts = JSON.parse(fs.readFileSync("contacts.txt", "utf8"))
+let contacts;
+
+if (fs.readFileSync("contacts.txt", "utf8") === "") {
+  contacts = {};
+} else {
+  contacts = JSON.parse(fs.readFileSync("contacts.txt", "utf8"));
+}
 
 // INITIALIZE APP
 let main = () => {
