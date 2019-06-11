@@ -1,59 +1,58 @@
+require('events').EventEmitter.defaultMaxListeners = 50;
 const inquirer = require("inquirer");
 const chalk = require("chalk");
-require('events').EventEmitter.defaultMaxListeners = 50;
+
 let contacts = [];
 
-
+// INITIALIZE APP
 let main = () => {
   console.log(chalk.blue("Welcome to your address book!"))
   showOptions();
 }
 
-let options = {
-  type: 'list',
-  name: 'view',
-  message: 'What do you want to do?',
-  choices: [
-    'Add a contact',
-    'View a contact',
-    'Remove a contact',
-    'Exit'
-  ]
-}
-
-
+// MAIN MENU
 let showOptions = () => {
+  let options = {
+    type: 'list',
+    name: 'view',
+    message: 'What do you want to do?',
+    choices: [
+      'Add a contact',
+      'View contacts',
+      'Remove a contact',
+      'Exit'
+    ]
+  }
   inquirer
     .prompt(options)
     .then(answers => {
       if (answers.view === 'Add a contact') {
         addContact();
-      } else if (answers.view === 'View a contact') {
+      } else if (answers.view === 'View contacts') {
         viewAllContacts();
       } else if (answers.view === 'Remove a contact') {
         removeContact();
       } else {
-        console.log("BYEEEEEE");
+        console.log("Seeya later!!");
         return;
       }
     })
     .catch(err => console.log(err))
 }
 
-
 // ADD CONTACT
-let addContactQuestions = [
-  {
-    name: 'name',
-    message: 'what is your name?',
-  },
-  {
-    name: 'number',
-    message: 'what is your number?',
-  }
-]
-
 let addContact = () => {
+  let addContactQuestions = [
+    {
+      name: 'name',
+      message: 'Please enter a contact name',
+    },
+    {
+      name: 'number',
+      message: 'Please enter a contact number',
+    }
+  ]
+
   inquirer
     .prompt(addContactQuestions)
     .then(answers => {
@@ -62,23 +61,24 @@ let addContact = () => {
     })
 }
 
-
 // VIEW ALL CONTACTS
 let viewAllContacts = () => {
-  console.log("Your contacts are:");
-  contacts.forEach(contact => {
-    console.log(contact);
-  })
-  showOptions();
+  if (contacts.length === 0) {
+    console.log("You have no contacts. Start adding!");
+    showOptions();
+  } else {
+    console.log("Your contacts are:");
+    contacts.forEach(contact => {
+      console.log(contact);
+    })
+    showOptions();
+  }
 }
 
 // REMOVE A CONTACT
-
-
-
 let removeContact = () => {
-  let contactNames = []
-  contacts.map(contact => contactNames.push(contact.name))
+  let contactNames = [];
+  contacts.map(contact => contactNames.push(contact.name));
   
   let removeWhichContact = {
     type: 'list',
@@ -87,7 +87,6 @@ let removeContact = () => {
     choices: contactNames
   }
   
-
   inquirer
     .prompt(removeWhichContact)
     .then(answer => {
@@ -95,12 +94,11 @@ let removeContact = () => {
       contacts.forEach((contact, i) => {
         if (contact.name === contactName) {
           contacts.splice(i, 1);
-          console.log(`${contactName} has been deleted`)
+          console.log(`${contactName} has been successfully deleted`)
         }
       })
       showOptions();
     })
 }
-
 
 main();
